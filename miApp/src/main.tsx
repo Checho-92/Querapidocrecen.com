@@ -2,16 +2,14 @@ import React from 'react';
 import ReactDOM  from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 {/*import App from './App';*/}
-
+import { AppRouter } from './router/AppRouter';
 import Home from './pages/home';
 import Login from './pages/Login';
 import './index.css';
-
 import Registro from './pages/registro';
 import Productos from './pages/productos';
-
-import { AppRouter } from './router/AppRouter';
 import Carrito from './pages/carrito';
+import Comunidad from './pages/comunidad';
 
 const router = createBrowserRouter([
 
@@ -36,6 +34,10 @@ const router = createBrowserRouter([
     {
       path: '/carrito',
       element: <Carrito/>,
+    },
+    {
+      path: '/comunidad',
+      element: <Comunidad/>,
     }
   ]
 }

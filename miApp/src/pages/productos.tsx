@@ -3,7 +3,7 @@ import React from "react";
 const Productos: React.FC = () => {
   return (
     <>
-    <section className="text-gray-600 body-font">
+    <section className="text-gray-600 body-font mx-8">
       <div className="container py-8 mx-auto">
       <div className="mb-8 my-0 text-cyan-700 text-3xl"><h1>Coches</h1></div>
         <div className="flex flex-wrap -m-4">

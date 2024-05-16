@@ -5,62 +5,14 @@ const Home: React.FC = () => {
     <>
     {/* Tarjetas */}
 
-    <section className="text-gray-600 body-font">
-      <div className="container px-5 py-24 mx-auto">
-        <div className="flex flex-wrap -m-4">
-          <div className="p-4 lg:w-1/3">
-            <div className="relative">
-              <div className="h-full bg-opacity-75 px-8 pt-8 pb-24 rounded-lg overflow-hidden text-center relative text-white" style={{ backgroundImage: `url('./public/img/fondo_bebe.jpg')`, backgroundSize: 'cover' }}>
-                <div className="absolute inset-0 bg-gray-900 bg-opacity-25"></div> {/* Capa de fondo con opacidad */}
-                <a href="#">
-                  <h2 className="tracking-widest text-xs title-font font-medium text-white mb-1 relative z-10">NUEVO</h2>
-                  <h1 className="title-font sm:text-2xl text-xl font-medium text-white mb-3 relative z-10">Articulos Nuevos para tu bebe</h1>
-                  <p className="leading-relaxed mb-3 relative z-10">Ingresa aqui para ver nuestro catalogo y ver los mejores articulos de primera</p>
-                </a>
-                <a className="text-white inline-flex items-center relative z-10" href="#" style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)' }}>Saber mas
-                  <svg className="w-4 h-4 ml-2 " viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14"></path>
-                    <path d="M12 5l7 7-7 7"></path>
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="p-4 lg:w-1/3">
-            <div className="h-full bg-gray-100 bg-opacity-75 px-8 pt-8 pb-24 rounded-lg overflow-hidden text-center relative" style={{ backgroundImage: `url('./public/img/fondo_bebe_niña.jpg')`, backgroundSize: 'cover' }}>
-              <div className="absolute inset-0 bg-gray-900 bg-opacity-25"></div> {/* Capa de fondo con opacidad */}
-              <a href="#">
-                <h2 className="tracking-widest text-xs title-font font-medium text-white mb-1 relative z-10">USADO</h2>
-                <h1 className="title-font sm:text-2xl text-xl font-medium text-white mb-3 relative z-10">Articulos Usados para tu bebe</h1>
-                <p className="leading-relaxed mb-3 relative z-10 text-white">Ingresa aqui para ver nuestro catalogo y ver los mejores articulos de segunda.</p>
-              </a>
-              <a className="text-white inline-flex items-center relative z-10" href="#" style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)' }}>Saber mas
-                <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14"></path>
-                  <path d="M12 5l7 7-7 7"></path>
-                </svg>
-              </a>
-            </div>
-          </div>
-          <div className="p-4 lg:w-1/3">
-            <div className="h-full bg-gray-100 bg-opacity-75 px-8 pt-8 pb-24 rounded-lg overflow-hidden text-center relative text-white" style={{ backgroundImage: `url('./public/img/donaciones.jpg')`, backgroundSize: 'cover' }}>
-              <div className="absolute inset-0 bg-gray-900 bg-opacity-25"></div> {/* Capa de fondo con opacidad */}
-              <a href="#">
-                <h2 className="tracking-widest text-xs title-font font-medium text-white mb-1 relative z-10">VENDE A LA PAGINA</h2>
-                <h1 className="title-font sm:text-2xl text-xl font-medium text-white mb-3 relative z-10">Muestranos tus articulos</h1>
-                <p className="leading-relaxed mb-3 relative z-10">Ingresa aqui y registrate para poder ofrecernos tus articulos de segunuda</p>
-              </a>
-              <a className="text-white inline-flex items-center relative z-10" href="#" style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)' }}>Saber mas
-                <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14"></path>
-                  <path d="M12 5l7 7-7 7"></path>
-                </svg>
-              </a>
-            </div>
-          </div>
+    <div className="relative h-[300px] bg-[#ffecec] overflow-hidden px-6 font-[sans-serif] mt-20 mb-20 background-image">
+   
+    <div className="grid items-center h-full">
+        <div className="text-center">
+              
         </div>
-      </div>
-    </section>
+    </div>
+</div>
     {/* SESION COMUNIDAD */}
     <section className="text-gray-600 body-font overflow-hidden">
       <div className="container px-5 py-24 mx-auto flex flex-wrap -m-12">

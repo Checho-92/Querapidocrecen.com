@@ -17,3 +17,14 @@ body {
     top: 0;
     width: 100%
   }
+
+  .background-image {
+    background-image: url('./public/img/banner.jpg');
+    background-size: cover; /* Ajusta el tamaño de la imagen para que cubra completamente el elemento */
+    background-position: center; /* Centra la imagen */
+}
+@media (max-width: 320px) {
+    .space-x-10 > *:not(:last-child) {
+        margin-right: 2.5rem; /* Espacio horizontal de 10 en pantallas pequeñas */
+      }
+    }
