@@ -1,18 +1,17 @@
+// NavBar.tsx
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faBabyCarriage, faSocks, faBaby, faBicycle, faRecycle, faShirt,faCartShopping, faUser,faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faBabyCarriage, faSocks, faBaby, faBicycle, faRecycle, faShirt, faCartShopping, faUser, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 
 const NavBar: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [user, setUser] = useState<{ nombre: string } | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 0) {
-        setIsSticky(true);
-      } else {
-        setIsSticky(false);
-      }
+      setIsSticky(window.scrollY > 0);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -21,21 +20,34 @@ const NavBar: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
   return (
     <>
-      <header className={`text-gray-600  z-50 body-font bg-cyan-600 shadow-lg shadow-cyan-600/50 ${isSticky ? 'sticky' : ''}`}>
+      <header className={`text-gray-600 z-50 body-font bg-cyan-600 shadow-lg shadow-cyan-600/50 ${isSticky ? 'sticky' : ''}`}>
         <div className="container mx-auto flex flex-wrap items-center justify-between p-5">
-          <a href='#' className="flex title-font font-medium items-center text-gray-900">
-            <span className="mr-5 ml-5 text-xl text-white ">Querapidocrecen.com</span>
-          </a>
-          <nav className={`md:flex md:items-center md:space-x-10 sm:space-x-10 sm:space-x-10  ${showMenu ? 'block' : 'hidden'}`}>
-            <a className="text-white hover:text-terciary cursor-pointer  ">Inicio</a>
-            <a className="text-white hover:text-terciary cursor-pointer " onClick={toggleMenu}>Productos</a>
-            <a className="text-white hover:text-terciary cursor-pointer ">Comunidad</a>
+          <Link to='/' className="flex title-font font-medium items-center text-gray-900">
+            <span className="mr-5 ml-5 text-xl text-white">Querapidocrecen.com</span>
+          </Link>
+          <nav className={`md:flex md:items-center md:space-x-10 ${showMenu ? 'block' : 'hidden'}`}>
+            <Link to='/' className="text-white hover:text-terciary cursor-pointer">Inicio</Link>
+            <a className="text-white hover:text-terciary cursor-pointer" onClick={toggleMenu}>Productos</a>
+            <a className="text-white hover:text-terciary cursor-pointer">Comunidad</a>
           </nav>
           <div className="flex items-center">
             <div className="relative mr-4">
@@ -51,14 +63,22 @@ const NavBar: React.FC = () => {
               </div>
             </div>
             <a className="text-white hover:text-terciary cursor-pointer"><FontAwesomeIcon icon={faCartShopping} /></a>
-            <a className="text-white hover:text-terciary cursor-pointer ml-4 mr-5"><FontAwesomeIcon icon={faUser} /></a>
+            {user ? (
+              <div className="ml-4 mr-5 text-white">
+                <span>Hola, {user.nombre}</span>
+                <button onClick={handleLogout} className="ml-2">Logout</button>
+              </div>
+            ) : (
+              <Link to='/login' className="text-white hover:text-terciary cursor-pointer ml-4 mr-5">
+                <FontAwesomeIcon icon={faUser} />
+              </Link>
+            )}
           </div>
           <button className="md:hidden text-white focus:outline-none" onClick={toggleMenu}>
             <FontAwesomeIcon icon={faBars} className="text-2xl" />
           </button>
         </div>
       </header>
-      {/* NavBar2 */}
       {showMenu && (
         <nav className={`fixed w-full z-50 text-gray-600 body-font bg-cyan-600 shadow-lg shadow-cyan-600/50 ${isSticky ? 'sticky' : ''}`}>
           <div className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
@@ -70,12 +90,11 @@ const NavBar: React.FC = () => {
               <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faShirt} className='mr-2'/> Ropa nueva</a></li>
               <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faSocks} className='mr-2'/> Zapatos</a></li>
             </ul>
-           
           </div>
         </nav>
       )}
     </>
   );
-}
+};
 
 export default NavBar;

@@ -1,23 +1,72 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSuccessMessage('');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setSuccessMessage('Inicio de sesión exitoso');
+        setTimeout(() => {
+          navigate('/');
+        }, 1000); // Redirige después de 2 segundos
+      } else {
+        setErrorMessage('Credenciales incorrectas');
+      }
+    } catch (error) {
+      setErrorMessage('Error al iniciar sesión. Por favor, inténtelo de nuevo.');
+      console.error('Error:', error);
+    }
+  };
+
   return (
-    <div className="px-4 py-8 min-h-screen flex flex-col items-center justify-center bg-cover bg-center" style={{ backgroundImage: `url('./public/img/fondo_inicio.jpg')`}}>
+    <div className="px-4 py-8 min-h-screen flex flex-col items-center justify-center bg-cover bg-center" style={{ backgroundImage: `url('/img/fondo_inicio.jpg')` }}>
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6">
         <h1 className="text-4xl font-medium text-center mb-4">Login</h1>
         <p className="text-gray-500 text-center mb-6">Hola, Bienvenido 👋</p>
 
-        <button className="w-full py-2 mb-6 border border-gray-300 rounded-lg flex items-center justify-center text-gray-700 hover:border-gray-400 hover:text-gray-900 hover:shadow-md transition duration-150">
-          <img src="https://www.svgrepo.com/show/355037/google.svg" className="w-6 h-6 mr-2" alt="" />
-          <span>Ingresa con Google</span>
-        </button>
-
-        <form className="mb-6">
+        <form className="mb-6" onSubmit={handleLogin}>
           <label htmlFor="email" className="block mb-1">Correo</label>
-          <input id="email" name="email" type="email" className="w-full mb-3 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 hover:shadow-md" placeholder="Enter email address" />
+          <input
+            id="email"
+            name="email"
+            type="email"
+            className="w-full mb-3 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 hover:shadow-md"
+            placeholder="Enter email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
           <label htmlFor="password" className="block mb-1">Contraseña</label>
-          <input id="password" name="password" type="password" className="w-full mb-3 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 hover:shadow-md" placeholder="Enter your password" />
+          <input
+            id="password"
+            name="password"
+            type="password"
+            className="w-full mb-3 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 hover:shadow-md"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           <div className="flex items-center justify-between mb-3">
             <label htmlFor="remember" className="flex items-center">
@@ -35,14 +84,17 @@ const Login: React.FC = () => {
           </button>
         </form>
 
+        {successMessage && <p className="text-center text-green-600">{successMessage}</p>}
+        {errorMessage && <p className="text-center text-red-600">{errorMessage}</p>}
+
         <p className="text-center text-gray-700">
           ¿No tienes una cuenta?{' '}
-          <a href="#" className="text-indigo-600 font-medium">
+          <Link to='/registro' className="text-indigo-600 font-medium">
             Regístrate ahora
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block ml-1" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
-          </a>
+          </Link>
         </p>
       </div>
     </div>
