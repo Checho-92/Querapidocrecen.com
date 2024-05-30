@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '../UserContext'; // Importamos el hook useUser para acceder al contexto del usuario
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -7,6 +8,7 @@ const Login: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const { setUser } = useUser(); // Usamos el hook useUser para obtener setUser del contexto del usuario
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,7 +16,7 @@ const Login: React.FC = () => {
     setErrorMessage('');
 
     try {
-      const response = await fetch('/api/login', {
+      const response = await fetch('http://localhost:3000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,9 +29,12 @@ const Login: React.FC = () => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         setSuccessMessage('Inicio de sesión exitoso');
+
+        // Almacenar el usuario en el contexto global y redirigir al inicio
+        setUser(data.user);
         setTimeout(() => {
           navigate('/');
-        }, 1000); // Redirige después de 2 segundos
+        }, 1000); // Redirige después de 1 segundo
       } else {
         setErrorMessage('Credenciales incorrectas');
       }

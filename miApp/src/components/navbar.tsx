@@ -1,15 +1,16 @@
-// NavBar.tsx
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faBabyCarriage, faSocks, faBaby, faBicycle, faRecycle, faShirt, faCartShopping, faUser, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
+import { useUser } from '../UserContext';
 
 const NavBar: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [user, setUser] = useState<{ nombre: string } | null>(null);
+  const { user, setUser } = useUser(); // Usamos el contexto del usuario
 
   useEffect(() => {
+    // Manejador de scroll para hacer el navbar sticky
     const handleScroll = () => {
       setIsSticky(window.scrollY > 0);
     };
@@ -20,18 +21,12 @@ const NavBar: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
 
   const handleLogout = () => {
+    // Limpiamos el token y la información del usuario del localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
@@ -47,7 +42,7 @@ const NavBar: React.FC = () => {
           <nav className={`md:flex md:items-center md:space-x-10 ${showMenu ? 'block' : 'hidden'}`}>
             <Link to='/' className="text-white hover:text-terciary cursor-pointer">Inicio</Link>
             <a className="text-white hover:text-terciary cursor-pointer" onClick={toggleMenu}>Productos</a>
-            <a className="text-white hover:text-terciary cursor-pointer">Comunidad</a>
+            <Link to='/comunidad' className="text-white hover:text-terciary cursor-pointer">Comunidad</Link>
           </nav>
           <div className="flex items-center">
             <div className="relative mr-4">
@@ -62,11 +57,11 @@ const NavBar: React.FC = () => {
                 <FontAwesomeIcon icon={faSearch} className="h-5 w-5 text-gray-400" />
               </div>
             </div>
-            <a className="text-white hover:text-terciary cursor-pointer"><FontAwesomeIcon icon={faCartShopping} /></a>
+            <Link to='/carrito' className="text-white hover:text-terciary cursor-pointer"><FontAwesomeIcon icon={faCartShopping} /></Link>
             {user ? (
               <div className="ml-4 mr-5 text-white">
-                <span>Hola, {user.nombre}</span>
-                <button onClick={handleLogout} className="ml-2">Logout</button>
+                <span>Hola {user.nombre},</span>
+                <button onClick={handleLogout} className="ml-2">Salir</button>
               </div>
             ) : (
               <Link to='/login' className="text-white hover:text-terciary cursor-pointer ml-4 mr-5">
@@ -83,7 +78,7 @@ const NavBar: React.FC = () => {
         <nav className={`fixed w-full z-50 text-gray-600 body-font bg-cyan-600 shadow-lg shadow-cyan-600/50 ${isSticky ? 'sticky' : ''}`}>
           <div className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
             <ul className="md:flex md:ml-auto md:mr-auto md:flex-wrap md:items-center md:text-base md:justify-start">
-              <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faBabyCarriage} className='mr-2'/> Coches</a></li>
+              <li><Link to='/coches' className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10"><FontAwesomeIcon icon={faBabyCarriage} className='mr-2'/> Coches</Link></li>
               <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faBaby} className='mr-2'/> Corrales</a></li>
               <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faBicycle} className='mr-2'/> Articulos</a></li>
               <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faRecycle} className='mr-2'/> Ropa usada</a></li>

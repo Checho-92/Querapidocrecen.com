@@ -1,3 +1,4 @@
+//main.tsx
 import React from 'react';
 import ReactDOM  from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -7,9 +8,10 @@ import Home from './pages/home';
 import Login from './pages/Login';
 import './index.css';
 import Registro from './pages/registro';
-import Productos from './pages/productos';
+import Coches from './pages/coches';
 import Carrito from './pages/carrito';
 import Comunidad from './pages/comunidad';
+import { UserProvider } from './UserContext'; 
 
 const router = createBrowserRouter([
 
@@ -28,8 +30,8 @@ const router = createBrowserRouter([
       element: <Registro/>,
     },
     {
-      path: '/productos',
-      element: <Productos/>,
+      path: '/coches',
+      element: <Coches/>,
     },
     {
       path: '/carrito',
@@ -43,11 +45,12 @@ const router = createBrowserRouter([
 }
 ]);
 
-
 ReactDOM.createRoot(document.getElementById('root')!).render( 
   <React.StrictMode>
-  
-    <RouterProvider router={router}/>
-    
+   <UserProvider>
+
+      <RouterProvider router={router}/>
+      
+   </UserProvider>
   </React.StrictMode>
 );
