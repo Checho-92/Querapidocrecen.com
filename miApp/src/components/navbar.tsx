@@ -1,16 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faBabyCarriage, faSocks, faBaby, faBicycle, faRecycle, faShirt, faCartShopping, faUser, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faBabyCarriage, faSocks, faBaby, faBicycle, faRecycle, faShirt, faCartShopping, faUser, faSearch, faCog } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
-import { useUser } from '../UserContext';
+import { useUser } from '../context/UserContext';
 
 const NavBar: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const { user, setUser } = useUser(); // Usamos el contexto del usuario
+  const [showConfigMenu, setShowConfigMenu] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const { user, setUser } = useUser();
+  const [updatedUser, setUpdatedUser] = useState({ nombre: '', email: '', password: '' });
+  const [alertMessage, setAlertMessage] = useState<string>('');
+
+  const configMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Manejador de scroll para hacer el navbar sticky
     const handleScroll = () => {
       setIsSticky(window.scrollY > 0);
     };
@@ -21,15 +27,58 @@ const NavBar: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (configMenuRef.current && !configMenuRef.current.contains(event.target as Node)) {
+        setShowConfigMenu(false);
+      }
+    };
+
+    if (showConfigMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showConfigMenu]);
+
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
 
+  const toggleConfigMenu = () => {
+    setShowConfigMenu(!showConfigMenu);
+  };
+
   const handleLogout = () => {
-    // Limpiamos el token y la información del usuario del localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setUser(null);
+    setUser(null); // Ahora esto no debería causar un error de tipo
+  };
+
+  const handleUpdateUser = async () => {
+    if (!user) return;
+
+    try {
+      const response = await axios.put('http://localhost:3000/api/user/update-user', {
+        id_usuario: user.id,
+        nombre: updatedUser.nombre || user.nombre,
+        email: updatedUser.email || user.correo,
+        password: updatedUser.password || user.password
+      });
+      if (response.status === 200) {
+        setUser({ ...user, nombre: updatedUser.nombre || user.nombre, correo: updatedUser.email || user.correo });
+        setAlertMessage('Usuario actualizado correctamente');
+      }
+    } catch (error) {
+      console.error('Error al actualizar el usuario:', error);
+      setAlertMessage('Error al actualizar el usuario');
+    } finally {
+      setShowUpdateModal(false);
+    }
   };
 
   return (
@@ -59,14 +108,23 @@ const NavBar: React.FC = () => {
             </div>
             <Link to='/carrito' className="text-white hover:text-terciary cursor-pointer"><FontAwesomeIcon icon={faCartShopping} /></Link>
             {user ? (
-              <div className="ml-4 mr-5 text-white">
-                <span>Hola {user.nombre},</span>
-                <button onClick={handleLogout} className="ml-2">Salir</button>
+              <div className="ml-4 mr-5 text-white flex items-center relative" ref={configMenuRef}>
+                <span>Hola {user.nombre}</span>
+                <button onClick={toggleConfigMenu} className="ml-4 relative">
+                  <FontAwesomeIcon icon={faCog} />
+                  {showConfigMenu && (
+                    <div className="absolute z-50 right-0 mt-2 w-48 bg-cyan-600 border border-gray-300 rounded-md shadow-lg">
+                      <button onClick={() => { setShowUpdateModal(true); setShowConfigMenu(false); }} className="block w-full text-left px-4 py-2 text-white hover:bg-cyan-500 border border-gray-300">Actualizar</button>
+                      <Link to='/eliminar-cuenta' className="block px-4 py-2 text-left text-white hover:bg-cyan-500 border border-gray-300">Eliminar cuenta</Link>
+                      <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-white hover:bg-cyan-500 border border-gray-300">Salir</button>
+                    </div>
+                  )}
+                </button>
               </div>
             ) : (
               <Link to='/login' className="text-white hover:text-terciary cursor-pointer ml-4 mr-5">
                 <FontAwesomeIcon icon={faUser} />
-              </Link>
+              </Link> 
             )}
           </div>
           <button className="md:hidden text-white focus:outline-none" onClick={toggleMenu}>
@@ -78,15 +136,58 @@ const NavBar: React.FC = () => {
         <nav className={`fixed w-full z-50 text-gray-600 body-font bg-cyan-600 shadow-lg shadow-cyan-600/50 ${isSticky ? 'sticky' : ''}`}>
           <div className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
             <ul className="md:flex md:ml-auto md:mr-auto md:flex-wrap md:items-center md:text-base md:justify-start">
-              <li><Link to='/coches' className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10"><FontAwesomeIcon icon={faBabyCarriage} className='mr-2'/> Coches</Link></li>
-              <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faBaby} className='mr-2'/> Corrales</a></li>
-              <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faBicycle} className='mr-2'/> Articulos</a></li>
-              <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faRecycle} className='mr-2'/> Ropa usada</a></li>
-              <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faShirt} className='mr-2'/> Ropa nueva</a></li>
-              <li><a className="block inline-block py-1 text-white hover:text-tertiary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faSocks} className='mr-2'/> Zapatos</a></li>
+              <li><Link to='/coches' className="block inline-block py-1 text-white hover:text-terciary cursor-pointer mr-10"><FontAwesomeIcon icon={faBabyCarriage} className='mr-2'/> Coches</Link></li>
+              <li><a className="block inline-block py-1 text-white hover:text-terciary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faBaby} className='mr-2'/> Corrales</a></li>
+              <li><a className="block inline-block py-1 text-white hover:text-terciary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faBicycle} className='mr-2'/> Articulos</a></li>
+              <li><a className="block inline-block py-1 text-white hover:text-terciary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faRecycle} className='mr-2'/> Ropa usada</a></li>
+              <li><a className="block inline-block py-1 text-white hover:text-terciary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faShirt} className='mr-2'/> Ropa nueva</a></li>
+              <li><a className="block inline-block py-1 text-white hover:text-terciary cursor-pointer mr-10" href="#"><FontAwesomeIcon icon={faSocks} className='mr-2'/> Zapatos</a></li>
             </ul>
           </div>
         </nav>
+      )}
+      {showUpdateModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg p-8 shadow-lg w-96">
+            <h2 className="text-2xl mb-4">Actualizar información</h2>
+            {alertMessage && (
+              <div className="mb-4 p-4 text-white bg-green-500 rounded">
+                {alertMessage}
+              </div>
+            )}
+            <label className="block mb-2">
+              Nombre de usuario:
+              <input
+                type="text"
+                value={updatedUser.nombre}
+                onChange={(e) => setUpdatedUser({ ...updatedUser, nombre: e.target.value })}
+                className="w-full mt-1 p-2 border rounded"
+              />
+            </label>
+            <label className="block mb-2">
+              Correo electrónico:
+              <input
+                type="email"
+                value={updatedUser.email}
+                onChange={(e) => setUpdatedUser({ ...updatedUser, email: e.target.value })}
+                className="w-full mt-1 p-2 border rounded"
+              />
+            </label>
+            <label className="block mb-4">
+              Nueva contraseña:
+              <input
+                type="password"
+                value={updatedUser.password}
+                onChange={(e) => setUpdatedUser({ ...updatedUser, password: e.target.value })}
+                className="w-full mt-1 p-2 border rounded"
+              />
+            </label>
+            <div className="flex justify-end">
+              <button onClick={() => setShowUpdateModal(false)} className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mr-2">Cancelar</button>
+              <button onClick={handleUpdateUser} className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Guardar</button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

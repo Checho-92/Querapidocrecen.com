@@ -1,10 +1,9 @@
-// Coches.tsx
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
-import { useUser } from '../UserContext';
+import { useUser } from '../context/UserContext';
+import { useCart } from '../context/CartContext';
 
 interface Product {
   id_producto: number;
@@ -20,6 +19,7 @@ const Coches: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [alertMessage, setAlertMessage] = useState<string>('');
   const { user } = useUser();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -34,23 +34,15 @@ const Coches: React.FC = () => {
     fetchProducts();
   }, []);
 
-  const addToCart = async (productId: number) => {
+  const handleAddToCart = async (productId: number) => {
     if (!user) {
       setAlertMessage('Debes estar registrado para agregar productos al carrito');
       return;
     }
 
     try {
-      const userId = user.id;
-      const quantity = 1;
-
-      const response = await axios.post('http://localhost:3000/api/cart/add', {
-        userId,
-        productId,
-        quantity,
-      });
-
-      setAlertMessage(response.data.message);
+      await addToCart(user.id, productId, 1);
+      setAlertMessage('Producto agregado al carrito');
     } catch (error) {
       console.error('Error al agregar al carrito:', error);
       setAlertMessage('Error al agregar al carrito');
@@ -89,7 +81,7 @@ const Coches: React.FC = () => {
                   <p className="text-gray-900">${product.precio}</p>
                   <button
                     className="text-white bg-indigo-500 border-0 py-2 px-2 mr-4 mb-4 focus:outline-none hover:bg-indigo-600 rounded text-lg"
-                    onClick={() => addToCart(product.id_producto)}
+                    onClick={() => handleAddToCart(product.id_producto)}
                   >
                     <FontAwesomeIcon icon={faShoppingCart} />
                   </button>

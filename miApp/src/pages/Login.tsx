@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUser } from '../UserContext'; // Importamos el hook useUser para acceder al contexto del usuario
+import { useUser } from '../context/UserContext'; // Importamos el hook useUser para acceder al contexto del usuario
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +16,7 @@ const Login: React.FC = () => {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/login', {
+      const response = await fetch('http://localhost:3000/api/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

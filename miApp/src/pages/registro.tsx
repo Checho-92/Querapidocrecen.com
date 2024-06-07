@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUser } from '../UserContext';
+import { useUser } from '../context/UserContext';
 
 const Registro: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -30,14 +30,21 @@ const Registro: React.FC = () => {
     setSuccess(''); // Limpiar mensaje de éxito
 
     try {
-      const response = await axios.post('http://localhost:3000/api/register', formData);
+      const response = await axios.post('http://localhost:3000/api/user/register', formData);
       
       // Mostrar mensaje de éxito
       setSuccess(response.data.message);
 
       // Almacenar el usuario en el contexto global y redirigir al inicio
-      const user = { id: response.data.user.id, nombre: formData.firstName };
+      const user = {
+        id: response.data.user.id,
+        nombre: formData.firstName,
+        name: formData.firstName,
+        correo: formData.email,
+        password: formData.password
+      };
       setUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
       setTimeout(() => {
         navigate('/');
       }, 1000); // Redirige después de 1 segundo
