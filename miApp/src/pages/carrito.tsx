@@ -1,11 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
 import { useCart } from '../context/CartContext';
 
 const Carrito: React.FC = () => {
   const { user } = useUser();
-  const { cartItems, setCartItems, updateCartItem, removeFromCart } = useCart();
+  const { cartItems, setCartItems, updateCartItem, removeFromCart } = useCart() ?? { cartItems: [], setCartItems: () => {}, updateCartItem: () => {}, removeFromCart: () => {} };
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [address, setAddress] = useState('');
+  const [orderMessage, setOrderMessage] = useState('');
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -47,15 +50,29 @@ const Carrito: React.FC = () => {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <h2 className="text-2xl font-extrabold text-cyan-700">
-          Por favor, inicia sesión para ver tu carrito de compras.
-        </h2>
-      </div>
-    );
-  }
+  const handleOrder = async () => {
+    if (!address) {
+      alert('Por favor, ingresa una dirección');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/orders/create', {
+        id_cliente: user?.id,
+        direccion: address
+      });
+
+      if (response.status === 201) {
+        setOrderMessage('Pedido realizado con éxito');
+        setCartItems([]); // Limpiar carrito
+      } else {
+        setOrderMessage('Error al realizar el pedido');
+      }
+    } catch (error) {
+      console.error('Error al realizar el pedido:', error);
+      setOrderMessage('Error al realizar el pedido');
+    }
+  };
 
   return (
     <div className="font-[sans-serif]">
@@ -63,7 +80,7 @@ const Carrito: React.FC = () => {
         <div className="lg:col-span-2 p-10 bg-white overflow-x-auto">
           <div className="flex border-b pb-4">
             <h2 className="text-2xl font-extrabold text-cyan-700 flex-1">Carrito de compras</h2>
-            <h3 className="text-xl font-extrabold text-cyan-700">{cartItems.length} Items</h3>
+            <h3 className="text-xl font-extrabold text-cyan-700">{Array.isArray(cartItems) ? cartItems.length : 0} Items</h3>
           </div>
           <div>
             <table className="mt-6 w-full border-collapse divide-y">
@@ -76,7 +93,7 @@ const Carrito: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="whitespace-nowrap divide-y">
-                {cartItems.map((item) => (
+                {Array.isArray(cartItems) ? cartItems.map((item) => (
                   <tr key={item.id_carrito}>
                     <td className="py-6 px-4">
                       <div className="flex items-center gap-6 w-max">
@@ -111,7 +128,7 @@ const Carrito: React.FC = () => {
                       <h4 className="text-md font-bold text-[#333]">${item.sub_total}</h4>
                     </td>
                   </tr>
-                ))}
+                )) : null}
               </tbody>
             </table>
           </div>
@@ -119,13 +136,39 @@ const Carrito: React.FC = () => {
         <div className="bg-gray-50 p-10">
           <h3 className="text-xl font-extrabold text-[#333] border-b pb-4">Orden de compra</h3>
           <ul className="text-[#333] divide-y mt-6">
-            <li className="flex flex-wrap gap-4 text-md py-4">Subtotal de productos <span className="ml-auto font-bold">{cartItems.reduce((acc, item) => acc + item.cantidad, 0)} Items</span></li>
-            <li className="flex flex-wrap gap-4 text-md py-4">Subtotal de precios <span className="ml-auto font-bold">${cartItems.reduce((acc, item) => acc + item.sub_total, 0)}</span></li>
-            <li className="flex flex-wrap gap-4 text-md py-4 font-bold">Total <span className="ml-auto">${cartItems.reduce((acc, item) => acc + item.total, 0)}</span></li>
+            <li className="flex flex-wrap gap-4 text-md py-4">Subtotal <span className="ml-auto font-bold">${Array.isArray(cartItems) ? cartItems.reduce((acc, item) => acc + item.sub_total, 0) : 0}</span></li>
+            <li className="flex flex-wrap gap-4 text-md py-4 font-bold">Total <span className="ml-auto">${Array.isArray(cartItems) ? cartItems.reduce((acc, item) => acc + item.total, 0) : 0}</span></li>
+            <li className="flex flex-wrap gap-4 text-md py-4">Cantidad Total <span className="ml-auto font-bold">{Array.isArray(cartItems) ? cartItems.reduce((acc, item) => acc + item.cantidad, 0) : 0}</span></li>
           </ul>
-          <button type="button" className="mt-6 text-md px-6 py-2.5 w-full bg-blue-600 hover:bg-blue-700 text-white rounded">Realizar pedido</button>
+          <button type="button" onClick={() => setShowAddressModal(true)} className="mt-6 text-md px-6 py-2.5 w-full bg-blue-600 hover:bg-blue-700 text-white rounded">Realizar pedido</button>
         </div>
       </div>
+  
+      {showAddressModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setShowAddressModal(false)}>
+          <div className="bg-white rounded-lg p-8 shadow-lg w-96 relative" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl mb-4">Ingresar Dirección</h2>
+            {orderMessage && (
+              <div className="mb-4 p-4 text-white bg-green-500 rounded absolute top-0 left-1/2 transform -translate-x-1/2 mt-2 w-80 text-center">
+                {orderMessage}
+              </div>
+            )}
+            <label className="block mb-2">
+              Dirección:
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full mt-1 p-2 border rounded"
+              />
+            </label>
+            <div className="flex justify-end">
+              <button onClick={() => setShowAddressModal(false)} className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded mr-2">Cancelar</button>
+              <button onClick={handleOrder} className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

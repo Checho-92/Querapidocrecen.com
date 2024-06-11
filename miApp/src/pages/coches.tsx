@@ -49,6 +49,25 @@ const Coches: React.FC = () => {
     }
   };
 
+  const handleClickOutside = (event: MouseEvent) => {
+    const alertElement = document.getElementById('alertMessage');
+    if (alertElement && !alertElement.contains(event.target as Node)) {
+      setAlertMessage('');
+    }
+  };
+
+  useEffect(() => {
+    if (alertMessage) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [alertMessage]);
+
   return (
     <section className="text-gray-600 body-font mx-8">
       <div className="container py-2 pb-12 mx-auto">
@@ -56,7 +75,7 @@ const Coches: React.FC = () => {
           <h1>Coches</h1>
         </div>
         {alertMessage && (
-          <div className="mb-4 p-4 text-white bg-green-500 rounded">
+          <div id="alertMessage" className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 text-white bg-green-500 rounded max-w-xs text-center z-50">
             {alertMessage}
           </div>
         )}

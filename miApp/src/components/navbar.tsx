@@ -1,8 +1,9 @@
+// NavBar.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faBabyCarriage, faSocks, faBaby, faBicycle, faRecycle, faShirt, faCartShopping, faUser, faSearch, faCog } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 
 const NavBar: React.FC = () => {
@@ -13,8 +14,8 @@ const NavBar: React.FC = () => {
   const { user, setUser } = useUser();
   const [updatedUser, setUpdatedUser] = useState({ nombre: '', email: '', password: '' });
   const [alertMessage, setAlertMessage] = useState<string>('');
-
   const configMenuRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,7 +57,7 @@ const NavBar: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setUser(null); // Ahora esto no debería causar un error de tipo
+    setUser(null);
   };
 
   const handleUpdateUser = async () => {
@@ -80,6 +81,23 @@ const NavBar: React.FC = () => {
       setShowUpdateModal(false);
     }
   };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+  
+    try {
+      const response = await axios.delete(`http://localhost:3000/api/user/delete-user/${user.id}`);
+      if (response.status === 200) {
+        alert('Cuenta eliminada correctamente');
+        handleLogout();
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Error al eliminar la cuenta:', error);
+      alert('Error al eliminar la cuenta');
+    }
+  };
+  
 
   return (
     <>
@@ -115,7 +133,7 @@ const NavBar: React.FC = () => {
                   {showConfigMenu && (
                     <div className="absolute z-50 right-0 mt-2 w-48 bg-cyan-600 border border-gray-300 rounded-md shadow-lg">
                       <button onClick={() => { setShowUpdateModal(true); setShowConfigMenu(false); }} className="block w-full text-left px-4 py-2 text-white hover:bg-cyan-500 border border-gray-300">Actualizar</button>
-                      <Link to='/eliminar-cuenta' className="block px-4 py-2 text-left text-white hover:bg-cyan-500 border border-gray-300">Eliminar cuenta</Link>
+                      <button onClick={handleDeleteAccount} className="block px-4 py-2 text-left text-white hover:bg-cyan-500 border border-gray-300">Eliminar cuenta</button>
                       <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-white hover:bg-cyan-500 border border-gray-300">Salir</button>
                     </div>
                   )}
