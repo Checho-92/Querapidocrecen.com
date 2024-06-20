@@ -1,7 +1,9 @@
+//carrito.tsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
 import { useCart } from '../context/CartContext';
+import SkeletonCardCarrito from '../components/skeletonCardCarrito';
 
 const Carrito: React.FC = () => {
   const { user } = useUser();
@@ -9,6 +11,8 @@ const Carrito: React.FC = () => {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [address, setAddress] = useState('');
   const [orderMessage, setOrderMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -18,6 +22,8 @@ const Carrito: React.FC = () => {
         setCartItems(response.data);
       } catch (error) {
         console.error('Error al obtener artículos del carrito:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -34,6 +40,10 @@ const Carrito: React.FC = () => {
         quantity
       });
       updateCartItem(cartItemId, quantity);
+      setSuccessMessage('Cantidad actualizada con éxito');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
     } catch (error) {
       console.error('Error al actualizar la cantidad:', error);
     }
@@ -45,6 +55,10 @@ const Carrito: React.FC = () => {
         data: { userId: user?.id, cartItemId }
       });
       removeFromCart(cartItemId);
+      setSuccessMessage('Artículo eliminado con éxito');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
     } catch (error) {
       console.error('Error al eliminar el artículo del carrito:', error);
     }
@@ -68,9 +82,15 @@ const Carrito: React.FC = () => {
       } else {
         setOrderMessage('Error al realizar el pedido');
       }
+      setTimeout(() => {
+        setOrderMessage('');
+      }, 3000);
     } catch (error) {
       console.error('Error al realizar el pedido:', error);
       setOrderMessage('Error al realizar el pedido');
+      setTimeout(() => {
+        setOrderMessage('');
+      }, 3000);
     }
   };
 
@@ -82,6 +102,11 @@ const Carrito: React.FC = () => {
             <h2 className="text-2xl font-extrabold text-cyan-700 flex-1">Carrito de compras</h2>
             <h3 className="text-xl font-extrabold text-cyan-700">{Array.isArray(cartItems) ? cartItems.length : 0} Items</h3>
           </div>
+          {successMessage && (
+            <div className="mb-4 p-4 text-white bg-green-500 rounded">
+              {successMessage}
+            </div>
+          )}
           <div>
             <table className="mt-6 w-full border-collapse divide-y">
               <thead className="whitespace-nowrap text-left">
@@ -93,42 +118,46 @@ const Carrito: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="whitespace-nowrap divide-y">
-                {Array.isArray(cartItems) ? cartItems.map((item) => (
-                  <tr key={item.id_carrito}>
-                    <td className="py-6 px-4">
-                      <div className="flex items-center gap-6 w-max">
-                        <div className="h-36 shrink-0">
-                          <img src={item.imagen} className="w-full h-full object-contain" />
+                {loading ? (
+                  Array.from({ length: 3 }).map((_, index) => <SkeletonCardCarrito key={index} />)
+                ) : (
+                  Array.isArray(cartItems) ? cartItems.map((item) => (
+                    <tr key={item.id_carrito}>
+                      <td className="py-6 px-4">
+                        <div className="flex items-center gap-6 w-max">
+                          <div className="h-36 shrink-0">
+                            <img src={item.imagen} className="w-full h-full object-contain" />
+                          </div>
+                          <div>
+                            <p className="text-md font-bold text-[#333]">{item.nombre}</p>
+                            <button type="button" className="mt-4 font-semibold text-red-400 text-sm" onClick={() => handleDeleteItem(item.id_carrito)}>
+                              Quitar
+                            </button>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-md font-bold text-[#333]">{item.nombre}</p>
-                          <button type="button" className="mt-4 font-semibold text-red-400 text-sm" onClick={() => handleDeleteItem(item.id_carrito)}>
-                            Quitar
+                      </td>
+                      <td className="py-6 px-4">
+                        <div className="flex divide-x border w-max">
+                          <button type="button" className="bg-gray-100 px-4 py-2 font-semibold" onClick={() => handleUpdateQuantity(item.id_carrito, item.cantidad - 1)}>
+                            -
+                          </button>
+                          <button type="button" className="bg-transparent px-4 py-2 font-semibold text-[#333] text-md">
+                            {item.cantidad}
+                          </button>
+                          <button type="button" className="bg-gray-800 text-white px-4 py-2 font-semibold" onClick={() => handleUpdateQuantity(item.id_carrito, item.cantidad + 1)}>
+                            +
                           </button>
                         </div>
-                      </div>
-                    </td>
-                    <td className="py-6 px-4">
-                      <div className="flex divide-x border w-max">
-                        <button type="button" className="bg-gray-100 px-4 py-2 font-semibold" onClick={() => handleUpdateQuantity(item.id_carrito, item.cantidad - 1)}>
-                          -
-                        </button>
-                        <button type="button" className="bg-transparent px-4 py-2 font-semibold text-[#333] text-md">
-                          {item.cantidad}
-                        </button>
-                        <button type="button" className="bg-gray-800 text-white px-4 py-2 font-semibold" onClick={() => handleUpdateQuantity(item.id_carrito, item.cantidad + 1)}>
-                          +
-                        </button>
-                      </div>
-                    </td>
-                    <td className="py-6 px-4">
-                      <h4 className="text-md font-bold text-[#333]">${item.precio}</h4>
-                    </td>
-                    <td className="py-6 px-4">
-                      <h4 className="text-md font-bold text-[#333]">${item.sub_total}</h4>
-                    </td>
-                  </tr>
-                )) : null}
+                      </td>
+                      <td className="py-6 px-4">
+                        <h4 className="text-md font-bold text-[#333]">${item.precio}</h4>
+                      </td>
+                      <td className="py-6 px-4">
+                        <h4 className="text-md font-bold text-[#333]">${item.sub_total}</h4>
+                      </td>
+                    </tr>
+                  )) : null
+                )}
               </tbody>
             </table>
           </div>

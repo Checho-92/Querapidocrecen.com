@@ -1,3 +1,5 @@
+//login.tsx
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext'; // Importamos el hook useUser para acceder al contexto del usuario
