@@ -1,4 +1,3 @@
-// NavBar.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -84,7 +83,11 @@ const NavBar: React.FC = () => {
 
   const handleDeleteAccount = async () => {
     if (!user) return;
-  
+    // Confirmación antes de eliminar la cuenta
+    const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.');
+
+    if (!confirmDelete) return;
+
     try {
       const response = await axios.delete(`http://localhost:3000/api/user/delete-user/${user.id}`);
       if (response.status === 200) {
@@ -97,7 +100,6 @@ const NavBar: React.FC = () => {
       alert('Error al eliminar la cuenta');
     }
   };
-  
 
   return (
     <>
